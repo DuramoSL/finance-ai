@@ -2,11 +2,3 @@ graph TD
     A[Data Extraction] --> B[LLM Processing]
     B --> C[Interactive Dashboard]
     C --> D[Evaluation Metrics]
-
-
-
-Team Name:
-Tech Breakers
-
-Team Members:
-Lav Kush, Ankit Sehgal, Sujeet Singh, Vishwajeet Gond
