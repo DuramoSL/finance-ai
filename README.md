@@ -13,4 +13,4 @@ Team Name: Tech Breakers
 Team Members: Lav Kush, Ankit Sehgal, Vishwajeet Gond, Sujeet Singh
 
 
-Thank You.
+Thank You TechKriti(IITK) for giving us a chance to showcase our talent.
