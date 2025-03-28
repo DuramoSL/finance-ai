@@ -2,6 +2,8 @@ Hello respected Judges, Thank you for checking our repo.
 
 We have created the project on Data Extraction while 10 companies names are given so 3 of them is used.
 
+Aim of this project: A plateform to simplify the complex annual reports of companies using LLMs, GenAi
+
 Technology Used: 
 Model Name: gpt2
 Language : Python3
