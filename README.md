@@ -16,3 +16,7 @@ Team Members: Lav Kush, Ankit Sehgal, Vishwajeet Gond, Sujeet Singh
 
 
 Thank You TechKriti(IITK) for giving us a chance to showcase our talent.
+
+
+-------------------------------------------------------------------------------
+https://github.com/DuramoSL/finance-ai/blob/main/fin_state_web.html
