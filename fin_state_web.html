@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Statement Analyzer</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tab {
+            display: none;
+        }
+        .tab.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="container mx-auto p-8 bg-white rounded-lg shadow-md">
+        <h1 class="text-3xl font-semibold text-blue-600 text-center mb-8">Financial Statement Analyzer</h1>
+
+        <div id="file-upload-section" class="mb-6 rounded-lg shadow-sm">
+            <div class="bg-gray-50 rounded-t-lg py-3 px-5 font-semibold text-gray-700">1. Upload Files</div>
+            <div class="p-4">
+                <div class="mb-4">
+                    <label for="financial-file" class="block text-gray-700 text-sm font-bold mb-2">Financial Document:</label>
+                    <input type="file" id="financial-file" accept=".pdf" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <p id="financial-file-name" class="text-gray-500 text-xs mt-1"></p>
+                </div>
+                <div>
+                    <label for="story-file" class="block text-gray-700 text-sm font-bold mb-2">Projected Story (Optional):</label>
+                    <input type="file" id="story-file" accept=".pdf,.txt" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <p id="story-file-name" class="text-gray-500 text-xs mt-1"></p>
+                </div>
+                <button id="analyze-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4">Analyze</button>
+            </div>
+        </div>
+
+        <div id="output-section" class="hidden mt-8 rounded-lg shadow-sm">
+            <div class="bg-gray-50 rounded-t-lg py-3 px-5 font-semibold text-gray-700">2. Analysis Results</div>
+            <div class="p-4">
+                <nav class="mb-4">
+                    <div class="flex space-x-4">
+                        <button class="tab-button bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" data-tab="summary">Summary</button>
+                        <button class="tab-button bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" data-tab="comparison">Comparison</button>
+                        <button class="tab-button bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" data-tab="visualization">Visualization</button>
+                        <button class="tab-button bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" data-tab="qanda">Q & A</button>
+                        <button class="tab-button bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" data-tab="education">Education</button>
+                    </div>
+                </nav>
+
+                <div id="summary" class="tab active">
+                    <h2 class="text-xl font-semibold mb-2 text-gray-800">Summary</h2>
+                    <div id="summary-text" class="bg-gray-100 border rounded p-4 text-gray-700"></div>
+                </div>
+
+                <div id="comparison" class="tab">
+                    <h2 class="text-xl font-semibold mb-2 text-gray-800">Comparison</h2>
+                    <div id="comparison-text" class="bg-gray-100 border rounded p-4 text-gray-700"></div>
+                </div>
+
+                <div id="visualization" class="tab">
+                    <h2 class="text-xl font-semibold mb-2 text-gray-800">Visualization</h2>
+                    <div id="visualization-canvas" class="border rounded p-4">
+                        <canvas id="myChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <div id="qanda" class="tab">
+                    <h2 class="text-xl font-semibold mb-2 text-gray-800">Q & A</h2>
+                    <div class="mb-4">
+                        <label for="question-input" class="block text-gray-700 text-sm font-bold mb-2">Ask a Question:</label>
+                        <input type="text" id="question-input" placeholder="Enter your question" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <button id="question-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Get Answer</button>
+                    <div id="answer-text" class="bg-gray-100 border rounded p-4 mt-4 text-gray-700"></div>
+                </div>
+
+                <div id="education" class="tab">
+                    <h2 class="text-xl font-semibold mb-2 text-gray-800">Financial Education</h2>
+                    <div id="education-text" class="bg-gray-100 border rounded p-4 text-gray-700"></div>
+                </div>
+            </div>
+        </div>
+        <div id="status-bar" class = "mt-4 text-gray-600">Ready</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const financialFile = document.getElementById('financial-file');
+        const storyFile = document.getElementById('story-file');
+        const analyzeButton = document.getElementById('analyze-button');
+        const outputSection = document.getElementById('output-section');
+        const summaryText = document.getElementById('summary-text');
+        const comparisonText = document.getElementById('comparison-text');
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const questionInput = document.getElementById('question-input');
+        const questionButton = document.getElementById('question-button');
+        const answerText = document.getElementById('answer-text');
+        const educationText = document.getElementById('education-text');
+        const financialFileNameDisplay = document.getElementById('financial-file-name');
+        const storyFileNameDisplay = document.getElementById('story-file-name');
+        const statusBar = document.getElementById('status-bar');
+
+        let myChart;  // Global chart object
+
+        const tabs = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab');
+
+        function showTab(tabName) {
+            tabs.forEach(tab => tab.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                showTab(tab.getAttribute('data-tab'));
+            });
+        });
+
+        financialFile.addEventListener('change', (event) => {
+            if (event.target.files.length > 0) {
+                financialFileNameDisplay.textContent = event.target.files[0].name;
+            } else {
+                financialFileNameDisplay.textContent = '';
+            }
+        });
+
+        storyFile.addEventListener('change', (event) => {
+            if (event.target.files.length > 0) {
+                storyFileNameDisplay.textContent = event.target.files[0].name;
+            } else {
+                storyFileNameDisplay.textContent = '';
+            }
+        });
+
+        analyzeButton.addEventListener('click', () => {
+            outputSection.classList.remove('hidden');
+            analyzeData();
+        });
+
+        questionButton.addEventListener('click', () => {
+            getAnswer();
+        });
+
+        function analyzeData() {
+            const financialDataFile = financialFile.files[0];
+            const storyDataFile = storyFile.files[0];
+
+            if (!financialDataFile) {
+                alert('Please upload a financial document.');
+                statusBar.textContent = "Error: Please upload a financial document.";
+                return;
+            }
+            statusBar.textContent = "Analyzing data...";
+
+            // Simulate analysis (replace with actual logic)
+            setTimeout(() => {
+                // Placeholder data
+                const summary = "This is a placeholder summary. Replace with actual AI-generated summary.";
+                const comparison = "This is a placeholder comparison. Replace with actual AI-generated comparison.";
+                const visualizationData = {
+                    labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4'],
+                    data1: [10, 20, 15, 25],
+                    data2: [5, 10, 8, 12]
+                };
+                const educationTextData = "Here's a basic explanation of a financial ratio...";
+
+                updateSummary(summary);
+                updateComparison(comparison);
+                updateVisualization(visualizationData);
+                updateEducation(educationTextData);
+                showTab('summary');
+                statusBar.textContent = "Analysis complete.";
+            }, 2000); // Simulate a 2-second delay for analysis
+        }
+
+        function updateSummary(summary) {
+            summaryText.textContent = summary;
+        }
+
+        function updateComparison(comparison) {
+            comparisonText.textContent = comparison;
+        }
+
+        function updateVisualization(data) {
+            if (myChart) {
+                myChart.destroy();
+            }
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Metric 1',
+                        data: data.data1,
+                        backgroundColor: 'rgba(0, 123, 255, 0.7)', // Blue
+                        borderColor: 'rgba(0, 123, 255, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Metric 2',
+                        data: data.data2,
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)', // Red
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Financial Metrics Over Time',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function getAnswer() {
+            const question = questionInput.value;
+            if (!question) {
+                alert('Please enter a question.');
+                return;
+            }
+
+            // Simulate getting an answer (replace with actual LLM call)
+            setTimeout(() => {
+                const answer = "This is a placeholder answer from the AI for the question: " + question;
+                answerText.textContent = answer;
+            }, 1000); // Simulate a 1-second delay
+        }
+
+        function updateEducation(text) {
+            educationText.textContent = text;
+        }
+    </script>
+</body>
+</html>
